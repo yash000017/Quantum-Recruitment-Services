@@ -4,24 +4,28 @@
  */
 
 const EMAILJS_CONFIG = {
-  serviceId: 'YOUR_SERVICE_ID',
-  publicKey: 'YOUR_PUBLIC_KEY',
-  toEmail: 'quantum-recruitment@gmail.com',
+  serviceId: 'service_6a6sni2',
+  publicKey: 'ziCqBvPC-MPUfeoyY',
+  toEmail: 'yashmodiofficial@gmail.com',
   templates: {
-    contact: 'YOUR_CONTACT_TEMPLATE_ID',
-    booking: 'YOUR_BOOKING_TEMPLATE_ID'
+    booking: 'template_iytk4bb',
+    contact: 'template_j8k4awq'
   }
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_REGEX = /^[\d\s+()\-]{10,}$/;
 
+function isPlaceholderValue(val) {
+  return !val || /^YOUR_/i.test(val) || /your_|placeholder/i.test(val);
+}
+
 function isEmailJsConfigured() {
   const c = EMAILJS_CONFIG;
-  return c.serviceId?.startsWith('service_')
-    && c.publicKey?.length > 10
-    && c.templates.contact?.startsWith('template_')
-    && c.templates.booking?.startsWith('template_');
+  return !isPlaceholderValue(c.serviceId) && c.serviceId.startsWith('service_')
+    && !isPlaceholderValue(c.publicKey) && c.publicKey.length > 10
+    && !isPlaceholderValue(c.templates.contact) && c.templates.contact.startsWith('template_')
+    && !isPlaceholderValue(c.templates.booking) && c.templates.booking.startsWith('template_');
 }
 
 let emailjsReady = null;
@@ -81,10 +85,9 @@ async function sendViaEmailJs(templateKey, params, { btn, btnText, onSuccess }) 
   btn.textContent = 'Sending…';
 
   if (!isEmailJsConfigured()) {
-    setTimeout(() => {
-      btn.style.display = 'none';
-      if (onSuccess) onSuccess();
-    }, 600);
+    openFormErrorModal();
+    btn.disabled = false;
+    btn.textContent = btnText || originalText;
     return;
   }
 

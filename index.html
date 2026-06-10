@@ -164,6 +164,11 @@
     font-weight: 600 !important; border-radius: 6px !important;
   }
   .nav-cta:hover { background: var(--cyan-dim) !important; color: #040d1a !important; }
+  .nav-links a.nav-cta.active {
+    background: var(--cyan) !important;
+    color: #040d1a !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+  }
 
   .hamburger {
     display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px;
@@ -816,6 +821,24 @@
     border-radius: 8px; transition: all 0.2s; cursor: pointer;
   }
   .mobile-menu a:hover { color: var(--cyan); background: rgba(0,200,232,0.06); }
+  .mobile-menu a.active {
+    color: var(--cyan) !important;
+    background: rgba(0,200,232,0.12);
+    font-weight: 600;
+  }
+  .mobile-menu a.nav-cta-mobile {
+    color: #040d1a !important;
+    background: var(--cyan);
+    font-weight: 600;
+    text-align: center;
+    margin-top: 8px;
+    border-radius: 8px;
+  }
+  .mobile-menu a.nav-cta-mobile.active {
+    background: var(--cyan) !important;
+    color: #040d1a !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+  }
   body.nav-open { overflow: hidden; }
 
   /* ── SCROLL ANIMATIONS ── */
@@ -1021,7 +1044,7 @@
   <a href="#services" data-page="services">Services</a>
   <a href="#sectors" data-page="sectors">Sectors</a>
   <a href="#contact" data-page="contact">Contact</a>
-  <a href="#book" data-page="book" style="color:var(--cyan)">Book a Meeting</a>
+  <a href="#book" data-page="book" id="nav-book-mobile" class="nav-cta-mobile">Book a Meeting</a>
 </div>
 
 <!-- TOAST -->
@@ -1893,6 +1916,7 @@
   </div>
 </div>
 
+<script src="emailjs/emailjs-config.js"></script>
 <script>
 // ── SITE CONFIG ──
 const PRODUCTION_URL = 'https://quantum-recruitment.co.uk';
@@ -1961,12 +1985,12 @@ function navigate(page, updateHash) {
 
   pages.forEach(p => {
     document.getElementById('page-'+p).classList.remove('active');
-    const navEl = document.getElementById('nav-'+p);
-    if(navEl) navEl.classList.remove('active');
+    document.getElementById('nav-'+p)?.classList.remove('active');
+    document.getElementById('nav-'+p+'-mobile')?.classList.remove('active');
   });
   document.getElementById('page-'+page).classList.add('active');
-  const navEl = document.getElementById('nav-'+page);
-  if(navEl) navEl.classList.add('active');
+  document.getElementById('nav-'+page)?.classList.add('active');
+  document.getElementById('nav-'+page+'-mobile')?.classList.add('active');
   currentPage = page;
   updatePageMeta(page);
 
@@ -2280,20 +2304,8 @@ function updateBkSelection() {
 }
 
 // ── EMAILJS ──
-// Setup: https://www.emailjs.com
-// 1. Add Gmail service → connect quantum-recruitment@gmail.com → copy Service ID
-// 2. Create two templates (paste HTML from emailjs/contact-template.html & booking-template.html)
-// 3. Account → API Keys → copy Public Key
-// 4. Paste IDs below (also in emailjs/emailjs-config.js)
-const EMAILJS_CONFIG = {
-  serviceId: 'YOUR_SERVICE_ID',
-  publicKey: 'YOUR_PUBLIC_KEY',
-  toEmail: 'quantum-recruitment@gmail.com',
-  templates: {
-    contact: 'YOUR_CONTACT_TEMPLATE_ID',
-    booking: 'YOUR_BOOKING_TEMPLATE_ID'
-  }
-};
+// Credentials live in emailjs/emailjs-config.js (loaded above)
+// Templates: emailjs/contact-template.html & emailjs/booking-template.html
 
 const EMAILJS_FALLBACK =
   'Could not send. Please email quantum-recruitment@gmail.com or call 01442 816 817.';
@@ -2495,16 +2507,14 @@ async function sendViaEmailJs(templateKey, params, { btn, btnText, onSuccess }) 
 
   try {
     if (!isEmailJsConfigured()) {
-      console.log('EmailJS not configured — demo mode:', params);
-      await new Promise(r => setTimeout(r, 600));
-    } else {
-      await loadEmailJS();
-      await emailjs.send(
-        EMAILJS_CONFIG.serviceId,
-        EMAILJS_CONFIG.templates[templateKey],
-        { ...params, to_email: EMAILJS_CONFIG.toEmail }
-      );
+      throw new Error('EmailJS is not configured. Update emailjs/emailjs-config.js with your keys.');
     }
+    await loadEmailJS();
+    await emailjs.send(
+      EMAILJS_CONFIG.serviceId,
+      EMAILJS_CONFIG.templates[templateKey],
+      { ...params, to_email: EMAILJS_CONFIG.toEmail }
+    );
     btn.style.display = 'none';
     if (onSuccess) onSuccess();
   } catch (err) {
