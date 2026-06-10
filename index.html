@@ -628,12 +628,12 @@
     margin: 0; padding-left: 20px;
     color: var(--text-muted); font-size: 14px; line-height: 1.8;
   }
-  .slot-error {
+  .date-error {
     display: none;
     font-size: 12px; color: #e85d5d;
     margin-top: 12px;
   }
-  .slot-error.visible { display: block; }
+  .date-error.visible { display: block; }
 
   .form-modal {
     position: fixed; inset: 0; z-index: 2000;
@@ -701,17 +701,6 @@
     display: grid; grid-template-columns: 1fr 1.4fr;
     gap: 64px; align-items: start; margin-top: 60px;
   }
-
-  .time-slots { margin-top: 24px; }
-  .time-slots h4 { font-size: 15px; font-weight: 500; color: var(--text-muted); margin-bottom: 12px; }
-  .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .slot {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 6px; padding: 8px; text-align: center;
-    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-  }
-  .slot:hover, .slot.selected { background: rgba(0,200,232,0.1); border-color: var(--cyan); color: var(--cyan); }
-  .slot.unavailable { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
 
   .calendar-mini {
     margin-bottom: 28px;
@@ -975,7 +964,6 @@
     .footer-grid { grid-template-columns: 1fr; }
     .values-grid { grid-template-columns: 1fr; }
     .process-steps { grid-template-columns: 1fr; gap: 28px; }
-    .slots-grid { grid-template-columns: repeat(2, 1fr); }
     .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
     .nav-logo-text { font-size: 14px; }
     .nav-logo-mark { width: 32px; height: 32px; font-size: 16px; }
@@ -988,7 +976,6 @@
     .hero h1 { font-size: clamp(28px, 8.5vw, 36px); }
     .sectors-grid { grid-template-columns: 1fr 1fr; }
     .stats-grid { grid-template-columns: 1fr; }
-    .slots-grid { grid-template-columns: repeat(2, 1fr); }
     .cal-day { font-size: 12px; }
     .footer-legal { flex-direction: column; gap: 8px; }
   }
@@ -1780,32 +1767,14 @@
             <div class="cal-day-name">Su</div>
           </div>
           <div class="cal-days" id="calDays"></div>
-        </div>
-
-        <div class="time-slots" id="timeSlots" style="display:none">
-          <h4>Available times on <span id="selectedDateLabel"></span> *</h4>
-          <div class="slots-grid" id="slots-grid">
-            <div class="slot" onclick="selectSlot(this,'09:00')">09:00</div>
-            <div class="slot" onclick="selectSlot(this,'09:30')">09:30</div>
-            <div class="slot" onclick="selectSlot(this,'10:00')">10:00</div>
-            <div class="slot unavailable">10:30</div>
-            <div class="slot" onclick="selectSlot(this,'11:00')">11:00</div>
-            <div class="slot" onclick="selectSlot(this,'11:30')">11:30</div>
-            <div class="slot unavailable">14:00</div>
-            <div class="slot" onclick="selectSlot(this,'14:30')">14:30</div>
-            <div class="slot" onclick="selectSlot(this,'15:00')">15:00</div>
-            <div class="slot" onclick="selectSlot(this,'15:30')">15:30</div>
-            <div class="slot unavailable">16:00</div>
-            <div class="slot" onclick="selectSlot(this,'16:30')">16:30</div>
-          </div>
-          <p class="slot-error" id="err-bk-slot">Please select a date and time slot</p>
+          <p class="date-error" id="err-bk-date">Please select a preferred date</p>
         </div>
       </div>
 
       <div class="form-card" id="booking-form-card">
         <div id="booking-form-body">
           <h3 style="font-size:22px;margin-bottom:8px">Your Details</h3>
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px">Complete the form and select a date and time on the left.</p>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px">Complete the form and select your preferred date on the left.</p>
 
           <form id="booking-form" novalidate>
           <div class="form-row">
@@ -1857,7 +1826,7 @@
           </div>
 
           <div id="bk-selection" style="margin-bottom:20px;padding:12px 16px;background:rgba(0,200,232,0.06);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-muted);display:none">
-            ✦ Selected: <span id="bk-selected-time" style="color:var(--cyan);font-weight:600"></span>
+            ✦ Preferred date: <span id="bk-selected-date" style="color:var(--cyan);font-weight:600"></span>
           </div>
 
           <button type="submit" class="btn-primary" id="bk-submit-btn" style="width:100%;justify-content:center">Confirm Booking →</button>
@@ -1869,8 +1838,7 @@
           <h3>Consultation Booked!</h3>
           <p>Thank you, <strong id="bk-confirmed-name" style="color:var(--text)"></strong>. Your free consultation has been requested — we'll confirm by email shortly.</p>
           <div class="confirmed-details">
-            <div class="confirmed-row"><span>Date</span><span id="bk-confirmed-date"></span></div>
-            <div class="confirmed-row"><span>Time</span><span id="bk-confirmed-time"></span></div>
+            <div class="confirmed-row"><span>Preferred Date</span><span id="bk-confirmed-date"></span></div>
             <div class="confirmed-row"><span>Format</span><span id="bk-confirmed-format"></span></div>
             <div class="confirmed-row"><span>Purpose</span><span id="bk-confirmed-type"></span></div>
           </div>
@@ -1878,8 +1846,8 @@
             <h4>What happens next</h4>
             <ol>
               <li>You'll receive a confirmation email within 2 business hours</li>
-              <li>We'll send a calendar invite with meeting details</li>
-              <li>Your consultant will call or meet you at the scheduled time</li>
+              <li>We'll confirm a time that works for you by email or phone</li>
+              <li>Your consultant will call or meet you on the agreed date</li>
             </ol>
           </div>
         </div>
@@ -1977,7 +1945,7 @@ function updatePageMeta(page) {
 // ── NAVIGATION ──
 const pages = ['home','about','services','sectors','contact','book'];
 let currentPage = 'home';
-let calYear, calMonth, selectedDate = null, selectedSlot = null;
+let calYear, calMonth, selectedDate = null;
 
 function navigate(page, updateHash) {
   if (updateHash === undefined) updateHash = true;
@@ -2155,8 +2123,8 @@ function updateCalNavButtons() {
   if (prev) prev.disabled = monthIndex(calYear, calMonth) <= monthIndex(now.getFullYear(), now.getMonth());
 }
 
-function setSlotError(show) {
-  const err = document.getElementById('err-bk-slot');
+function setDateError(show) {
+  const err = document.getElementById('err-bk-date');
   if (err) err.classList.toggle('visible', show);
 }
 
@@ -2195,13 +2163,10 @@ function resetBookingPage() {
   }
 
   selectedDate = null;
-  selectedSlot = null;
 
-  const timeSlots = document.getElementById('timeSlots');
   const bkSelection = document.getElementById('bk-selection');
-  if (timeSlots) timeSlots.style.display = 'none';
   if (bkSelection) bkSelection.style.display = 'none';
-  setSlotError(false);
+  setDateError(false);
 
   initCal();
   requestAnimationFrame(() => renderCalendar());
@@ -2259,14 +2224,9 @@ function renderCalendar() {
 
 function selectDate(date, el, d) {
   selectedDate = date;
-  document.querySelectorAll('.cal-day').forEach(x=>x.classList.remove('selected'));
+  document.querySelectorAll('.cal-day').forEach(x => x.classList.remove('selected'));
   el.classList.add('selected');
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('selectedDateLabel').textContent = d+' '+months[calMonth]+' '+calYear;
-  document.getElementById('timeSlots').style.display='block';
-  selectedSlot = null;
-  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('selected'));
-  setSlotError(false);
+  setDateError(false);
   updateBkSelection();
 }
 
@@ -2286,21 +2246,16 @@ function changeMonth(dir) {
   renderCalendar();
 }
 
-function selectSlot(el, time) {
-  selectedSlot = time;
-  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('selected'));
-  el.classList.add('selected');
-  setSlotError(false);
-  updateBkSelection();
-}
-
 function updateBkSelection() {
   const sel = document.getElementById('bk-selection');
-  if(selectedDate && selectedSlot) {
-    const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    document.getElementById('bk-selected-time').textContent = selectedDate.getDate()+' '+months[selectedDate.getMonth()]+' at '+selectedSlot;
-    sel.style.display='block';
-  } else { sel.style.display='none'; }
+  if (selectedDate) {
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('bk-selected-date').textContent =
+      selectedDate.getDate() + ' ' + months[selectedDate.getMonth()] + ' ' + selectedDate.getFullYear();
+    sel.style.display = 'block';
+  } else {
+    sel.style.display = 'none';
+  }
 }
 
 // ── EMAILJS ──
@@ -2375,7 +2330,7 @@ function clearFormErrors(formBodyId) {
 }
 
 function scrollToFirstError() {
-  const first = document.querySelector('.form-group.invalid, .slot-error.visible');
+  const first = document.querySelector('.form-group.invalid, .date-error.visible');
   if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -2419,7 +2374,7 @@ function validateContactForm() {
 
 function validateBookingForm() {
   clearFormErrors('booking-form-body');
-  setSlotError(false);
+  setDateError(false);
   let valid = true;
 
   const fname  = document.getElementById('bk-fname').value.trim();
@@ -2437,7 +2392,7 @@ function validateBookingForm() {
   else if (!PHONE_REGEX.test(phone)) { setFieldError('bk-phone', 'Enter a valid phone number'); valid = false; }
   if (!type) { setFieldError('bk-type', 'Please select what you are looking for'); valid = false; }
   if (!format) { setFieldError('bk-format', 'Please select a meeting format'); valid = false; }
-  if (!selectedDate || !selectedSlot) { setSlotError(true); valid = false; }
+  if (!selectedDate) { setDateError(true); valid = false; }
 
   if (!valid) {
     scrollToFirstError();
@@ -2488,7 +2443,6 @@ function showBookingConfirmed(data) {
 
   document.getElementById('bk-confirmed-name').textContent = data.name;
   document.getElementById('bk-confirmed-date').textContent = data.date;
-  document.getElementById('bk-confirmed-time').textContent = data.time;
   document.getElementById('bk-confirmed-format').textContent = data.format;
   document.getElementById('bk-confirmed-type').textContent = data.type;
   document.getElementById('bk-confirmed').classList.add('visible');
@@ -2574,7 +2528,6 @@ async function submitBooking() {
     client_phone:   phone,
     meeting_type:   type,
     meeting_date:   dateStr,
-    meeting_time:   selectedSlot,
     meeting_format: format,
     notes:          notes || 'None'
   }, {
@@ -2584,7 +2537,6 @@ async function submitBooking() {
       showBookingConfirmed({
         name: fname + ' ' + lname,
         date: dateStr,
-        time: selectedSlot,
         format: format,
         type: type
       });
