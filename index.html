@@ -1670,8 +1670,8 @@
             <span class="field-error" id="err-cf-type"></span>
           </div>
           <div class="form-group" id="fg-cf-sector">
-            <label for="cf-sector">Sector</label>
-            <select id="cf-sector">
+            <label for="cf-sector">Sector *</label>
+            <select id="cf-sector" required>
               <option value="">Select sector...</option>
               <option>Technology & Software</option>
               <option>Financial Services</option>
@@ -1681,6 +1681,7 @@
               <option>Marketing & Creative</option>
               <option>Other</option>
             </select>
+            <span class="field-error" id="err-cf-sector"></span>
           </div>
           <div class="form-group" id="fg-cf-message">
             <label for="cf-message">Message *</label>
@@ -1793,8 +1794,8 @@
             <span class="field-error" id="err-bk-email"></span>
           </div>
           <div class="form-group" id="fg-bk-phone">
-            <label for="bk-phone">Phone Number *</label>
-            <input type="tel" placeholder="+44 7700 900000" id="bk-phone" autocomplete="tel" required>
+            <label for="bk-phone">Phone Number</label>
+            <input type="tel" placeholder="+44 7700 900000" id="bk-phone" autocomplete="tel">
             <span class="field-error" id="err-bk-phone"></span>
           </div>
           <div class="form-group" id="fg-bk-type">
@@ -1819,8 +1820,9 @@
             <span class="field-error" id="err-bk-format"></span>
           </div>
           <div class="form-group" id="fg-bk-notes">
-            <label for="bk-notes">Anything you'd like us to know?</label>
-            <textarea placeholder="Brief context helps us prepare..." id="bk-notes" style="min-height:80px"></textarea>
+            <label for="bk-notes">Anything you'd like us to know? *</label>
+            <textarea placeholder="Brief context helps us prepare..." id="bk-notes" style="min-height:80px" required></textarea>
+            <span class="field-error" id="err-bk-notes"></span>
           </div>
 
           <div id="bk-selection" style="margin-bottom:20px;padding:12px 16px;background:rgba(0,200,232,0.06);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text-muted);display:none">
@@ -2342,8 +2344,8 @@ function bindFieldValidation(ids) {
 }
 
 bindFieldValidation([
-  'cf-fname','cf-lname','cf-email','cf-phone','cf-type','cf-message',
-  'bk-fname','bk-lname','bk-email','bk-phone','bk-type','bk-format'
+  'cf-fname','cf-lname','cf-email','cf-phone','cf-type','cf-sector','cf-message',
+  'bk-fname','bk-lname','bk-email','bk-phone','bk-type','bk-format','bk-notes'
 ]);
 
 function validateContactForm() {
@@ -2355,6 +2357,7 @@ function validateContactForm() {
   const email   = document.getElementById('cf-email').value.trim();
   const phone   = document.getElementById('cf-phone').value.trim();
   const type    = document.getElementById('cf-type').value;
+  const sector  = document.getElementById('cf-sector').value;
   const message = document.getElementById('cf-message').value.trim();
 
   if (!fname) { setFieldError('cf-fname', 'First name is required'); valid = false; }
@@ -2363,6 +2366,7 @@ function validateContactForm() {
   else if (!EMAIL_REGEX.test(email)) { setFieldError('cf-email', 'Enter a valid email address'); valid = false; }
   if (phone && !PHONE_REGEX.test(phone)) { setFieldError('cf-phone', 'Enter a valid phone number'); valid = false; }
   if (!type) { setFieldError('cf-type', 'Please select who you are'); valid = false; }
+  if (!sector) { setFieldError('cf-sector', 'Please select a sector'); valid = false; }
   if (!message) { setFieldError('cf-message', 'Message is required'); valid = false; }
   else if (message.length < 10) { setFieldError('cf-message', 'Message must be at least 10 characters'); valid = false; }
 
@@ -2381,15 +2385,16 @@ function validateBookingForm() {
   const phone  = document.getElementById('bk-phone').value.trim();
   const type   = document.getElementById('bk-type').value;
   const format = document.getElementById('bk-format').value;
+  const notes  = document.getElementById('bk-notes').value.trim();
 
   if (!fname) { setFieldError('bk-fname', 'First name is required'); valid = false; }
   if (!lname) { setFieldError('bk-lname', 'Last name is required'); valid = false; }
   if (!email) { setFieldError('bk-email', 'Email address is required'); valid = false; }
   else if (!EMAIL_REGEX.test(email)) { setFieldError('bk-email', 'Enter a valid email address'); valid = false; }
-  if (!phone) { setFieldError('bk-phone', 'Phone number is required'); valid = false; }
-  else if (!PHONE_REGEX.test(phone)) { setFieldError('bk-phone', 'Enter a valid phone number'); valid = false; }
+  if (phone && !PHONE_REGEX.test(phone)) { setFieldError('bk-phone', 'Enter a valid phone number'); valid = false; }
   if (!type) { setFieldError('bk-type', 'Please select what you are looking for'); valid = false; }
   if (!format) { setFieldError('bk-format', 'Please select a meeting format'); valid = false; }
+  if (!notes) { setFieldError('bk-notes', 'Please share some context for your consultation'); valid = false; }
   if (!selectedDate) { setDateError(true); valid = false; }
 
   if (!valid) {
@@ -2494,7 +2499,7 @@ async function submitContact() {
     client_email:  email,
     client_phone:  phone || 'Not provided',
     enquiry_type:  type,
-    sector:        sector || 'Not specified',
+    sector:        sector,
     message:       message
   }, {
     btn:     document.getElementById('cf-submit-btn'),
@@ -2523,11 +2528,11 @@ async function submitBooking() {
   await sendViaEmailJs('booking', {
     client_name:    (fname + ' ' + lname).trim(),
     client_email:   email,
-    client_phone:   phone,
+    client_phone:   phone || 'Not provided',
     meeting_type:   type,
     meeting_date:   dateStr,
     meeting_format: format,
-    notes:          notes || 'None'
+    notes:          notes
   }, {
     btn:     document.getElementById('bk-submit-btn'),
     btnText: 'Confirm Booking →',
